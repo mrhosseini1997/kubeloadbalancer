@@ -1,0 +1,33 @@
+version: '2.2'
+
+services:
+ haproxy:
+  restart: unless-stopped
+  container_name: haproxy
+  image: haproxy:2.2.2
+  volumes:
+   - "./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg"
+  hostname: haproxy
+  network_mode: "host"
+  extra_hosts:
+   - "kubemaster1011:172.16.10.11"
+   - "kubemaster1012:172.16.10.12"
+   - "kubemaster1013:172.16.10.13"
+
+ keepalived:
+  image: osixia/keepalived:2.0.20
+  restart: unless-stopped
+  network_mode: "host"
+  cap_add:
+   - NET_ADMIN
+   - NET_BROADCAST
+   - NET_RAW
+  environment:
+   KEEPALIVED_UNICAST_PEERS: "#PYTHON2BASH:['172.16.60.11']"
+   KEEPALIVED_VIRTUAL_IPS: "#PYTHON2BASH:['172.16.60.254 dev ens8']"
+   KEEPALIVED_ROUTER_ID: "51"
+   KEEPALIVED_PASSWORD: "myP@ssword"
+   KEEPALIVED_INTERFACE: "ens8"
+   KEEPALIVED_STATE: "MASTER"
+   KEEPALIVED_PRIORITY: "150"
+
